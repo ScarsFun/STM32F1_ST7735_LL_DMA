@@ -355,9 +355,7 @@ void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint
     TFT_CS_L();
     ST7735_SetAddressWindow(x, y, x + w - 1, y + h - 1);
     TFT_DC_D();
-    //ST7735_WriteData((uint8_t*)data, sizeof(uint16_t)*w*h);
     Send_DMA_Data16((uint16_t*)data, w * h);
-    //Send_DMA_Data8((uint8_t*)data, sizeof(uint16_t)*w*h);
     TFT_CS_H();
 }
 
