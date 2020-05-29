@@ -124,7 +124,7 @@ uint16_t ST7735_Color565(uint8_t r, uint8_t g, uint8_t b);
 void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
 void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void ST7735_FillScreen(uint16_t color);
-void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);
+void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t* data);
 void ST7735_InvertColors(bool invert);
 void ST7735_DrawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
 void ST7735_DrawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, uint16_t color);

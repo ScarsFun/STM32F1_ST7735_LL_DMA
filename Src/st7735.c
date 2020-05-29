@@ -326,16 +326,6 @@ void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16
     Send_DMA_Data16(&tbuf, w * h);
     LL_DMA_SetMemoryIncMode(DMA1, LL_DMA_CHANNEL_3, LL_DMA_MEMORY_INCREMENT);
     TFT_CS_H();
-
-    /*
-    TFT_DC_D();
-    uint16_t tbuf[w];
-    for (int x = w ; x >= 0; x--) 
-            tbuf[x] = color;
-    for (y = h; y > 0; y--) 
-        Send_DMA_Data16(tbuf,sizeof(tbuf)/2);
-    TFT_CS_H();
-    */
 }
 
 void ST7735_FillScreen(uint16_t color)
@@ -343,7 +333,7 @@ void ST7735_FillScreen(uint16_t color)
     ST7735_FillRectangle(0, 0, _width, _height, color);
 }
 
-void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data)
+void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t* data)
 {
     if ((x >= _width) || (y >= _height))
         return;
@@ -880,6 +870,7 @@ uint8_t get_bit_from_byte(uint8_t byte, uint8_t bit)
     return byte & (1 << bit);
 }
 
+// updated : draw char in DMA mode
 void ST7735_DrawChar(char ch, const uint8_t font[], uint16_t X, uint16_t Y, uint16_t color, uint16_t bgcolor)
 {
     if ((ch < 31) || (ch > 127))
@@ -892,21 +883,24 @@ void ST7735_DrawChar(char ch, const uint8_t font[], uint16_t X, uint16_t Y, uint
     fWidth = font[1];
     fHeight = font[2];
     fBPL = font[3];
+    uint16_t buffer[fHeight * fWidth];
+    uint16_t index=0;
 
     tempChar = (uint8_t*)&font[((ch - 0x20) * fOffset) + 4]; /* Current Character = Meta + (Character Index * Offset) */
 
-    /* Clear background first */
-    ST7735_FillRectangle(X, Y, fWidth, fHeight, bgcolor);
 
     for (int j = 0; j < fHeight; j++) {
         for (int i = 0; i < fWidth; i++) {
             uint8_t z = tempChar[fBPL * i + ((j & 0xF8) >> 3) + 1]; /* (j & 0xF8) >> 3, increase one by 8-bits */
             uint8_t b = 1 << (j & 0x07);
-            if ((z & b) != 0x00) {
-                ST7735_DrawPixel(X + i, Y + j, color);
-            }
+            if ((z & b) != 0x00)
+                buffer[index] = color;
+            else
+                buffer[index] = bgcolor;
+            index++;
         }
     }
+    ST7735_DrawImage(X, Y, fWidth, fHeight, buffer);
 }
 
 void ST7735_DrawText(const char* str, const uint8_t font[], uint16_t X, uint16_t Y, uint16_t color, uint16_t bgcolor)
